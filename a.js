@@ -1,11 +1,12 @@
 import k from 'kijiji-scraper'
 import mysql from 'mysql'
+import mysqlConfig from './config.json'
 
 var con = mysql.createConnection({
-    host: '192.168.1.144',
-    user: 'scraper',
-    password: 'Mysql5,./,.',
-    database: 'bikes'
+    host: mysqlConfig[0],
+    user: mysqlConfig[1],
+    password: mysqlConfig[2],
+    database: mysqlConfig[3]
 });
 
 con.connect(err => {
