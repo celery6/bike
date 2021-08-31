@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "axios": "^0.21.1",
+    "cheerio": "*",
+    "kijiji-scraper": "^6.2.1",
+    "mysql": "^2.18.1"
+  }
+}
