@@ -1,8 +1,9 @@
 const k = require('kijiji-scraper')
-const dotenv = require('dotenv')
-dotenv.config()
 
-async function check(con) {
+//---------------go through all active ads in db and check if its still active or changed price---------------
+
+async function check(con, client) {
+	console.log('cehcking!')
 	con.query(`SELECT * FROM listings WHERE active = 'active'`, async (err, rows) => {
 		for (let i = 0; i < rows.length; ++i) {
 			try {
@@ -24,8 +25,11 @@ async function check(con) {
 			} catch (err) {
 				if (err.toString().includes('does not exist')) {
 					//CHANGE ACTIVE AD TO INACTIVE IN DB
+					const inactive_date = new Date()
+					con.query(
+						`UPDATE listings SET active = 'inactive', inactive_date = '${inactive_date}' WHERE ad_id = '${rows[i].ad_id}'`
+					)
 					console.log(`AD DOES NOT EXIST! AD ID: ${rows[i].ad_id} IS NOW INACTIVE!`)
-					con.query(`UPDATE listings SET active = 'inactive' WHERE ad_id = '${rows[i].ad_id}'`)
 				} else {
 					console.log(rows[i].url)
 					throw err
@@ -33,6 +37,7 @@ async function check(con) {
 			}
 		}
 	})
+	console.log('done chekcing!')
 }
 
 module.exports = check
