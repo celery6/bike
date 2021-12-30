@@ -6,7 +6,8 @@
     "discord.js": "^13.2.0",
     "dotenv": "^10.0.0",
     "kijiji-scraper": "https://github.com/celery6/kijiji-scraper.git",
-    "mysql": "^2.18.1",
-    "path": "^0.12.7"
+    "mysql2": "^2.3.3",
+    "path": "^0.12.7",
+    "winston": "^3.3.3"
   }
 }
