@@ -1,31 +1,49 @@
 const CronJob = require('cron').CronJob
-const mysql = require('mysql')
-const dotenv = require('dotenv')
-dotenv.config()
+const mysql = require('mysql2')
 const scrape = require('./src/scraper/scrape')
 const check = require('./src/scraper/check')
+const bot = require('./src/bot/bot')
+const path = require('path')
+const logger = require('./src/util/logger')
+require('dotenv').config({ path: '../.env' })
+const { Client, Intents } = require('discord.js')
+
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] })
 const con = mysql.createConnection({
-	host: `${process.env.HOST}`,
+	host: `localhost`,
 	user: 'scraper',
 	password: `${process.env.PASSWORD}`,
-	database: 'bikes',
-	port: 3306,
+	database: 'bike',
 })
+
+const bikeParams = {
+	locationId: 1700183,
+	categoryId: 644,
+	sortByName: 'dateDesc',
+	adType: 'OFFERED',
+}
+const allParams = {
+	locationId: 0,
+	categoryId: 0,
+	sortByName: 'dateDesc',
+	adType: 'OFFERED',
+}
+bot(process.env.TOKEN)
 
 con.connect((err) => {
-	if (err) {
-		console.error('mysql error connecting: ' + err)
-		return
-	}
-	console.log('mysql connected YEAAAAAAAAAAAAAHH!!!!!')
+	if (err) return console.error('mysql error connecting!!!!! ' + err)
+	logger.info('mysql connected YEAAAAAAAAAAAAAHH!!!!!')
 })
 
-const job = new CronJob(`1 */38 * * * *`, function () {
-	scrape(con)
-	check(con)
-	const theDate = new Date()
-	console.log('DONE! ' + theDate)
+const job = new CronJob(`1 */1 * * * *`, function () {
+	scrape(con, 'client', bikeParams, 'listings')
+	scrape(con, 'client', allParams, 'all_listings')
+	check(con, 'client', 'listings', 'price_changes')
+	check(con, 'client', 'all_listings', 'all_price_changes')
 })
-
 job.start()
-console.log('CRON JOB RUNNING NOW!')
+logger.info('CRON JOB RUNNING NOW!')
+scrape(con, 'client', bikeParams, 'listings')
+scrape(con, 'client', allParams, 'all_listings')
+check(con, 'client', 'listings', 'price_changes')
+check(con, 'client', 'all_listings', 'all_price_changes')
